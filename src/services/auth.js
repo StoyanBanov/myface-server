@@ -1,0 +1,52 @@
+const bcrypt = require('bcrypt')
+const User = require('../models/User')
+const { PASSWORD_REGEX } = require('./constants')
+
+async function validate(data) {
+    if (!PASSWORD_REGEX.test(data.password))
+        throw new Error('Invalid password!')
+
+    if (data.password != data.rePassword)
+        throw new Error('Passwords do\'t match!')
+
+    await User.validate(data)
+
+    return { ...data }
+}
+
+async function changePassword(userId, password) {
+    const user = await User.findById(userId)
+
+    if (!user || !PASSWORD_REGEX.test(password))
+        throw new Error('Invalid user or password!')
+
+    user.password = await bcrypt.hash(password, 10)
+
+    await user.save()
+
+    return user
+}
+
+async function register(data) {
+    data.password = await bcrypt.hash(data.password, 10)
+
+    const user = await User.create(data)
+
+    return user
+}
+
+async function login({ email, password }) {
+    const user = await User.findOne({ email }).lean()
+
+    if (!user || !(await bcrypt.compare(password, user.password)))
+        throw new Error('Wrong email or password!')
+
+    return user
+}
+
+module.exports = {
+    validate,
+    changePassword,
+    register,
+    login
+}
