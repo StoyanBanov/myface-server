@@ -10,8 +10,6 @@ exports.getMessagesByChatId = async (chatId, {
     limit = 10,
     orderBy = { createdAt: -1 }
 } = {}) => {
-    console.log(skip, limit);
-
     return Message
         .find({ chat: chatId })
         .sort(orderBy)
