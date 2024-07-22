@@ -11,7 +11,7 @@ const corsOptions = {
             callback(null, true)
         } else {
             //console.log(origin);
-            callback(new Error('Not allowed by CORS'))
+            callback(new Error(origin + ' not allowed by CORS'))
         }
     }
 }
