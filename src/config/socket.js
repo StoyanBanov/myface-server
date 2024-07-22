@@ -1,12 +1,11 @@
 const { Server } = require('socket.io');
-const { CLIENT_ADDRESS } = require('./constants');
 
 let io
 
 exports.socketConfig = (server) => {
     io = new Server(server, {
         cors: {
-            origin: [CLIENT_ADDRESS],
+            origin: [process.env.CLIENT_ADDRESS],
             methods: ["GET", "POST"]
         }
     })

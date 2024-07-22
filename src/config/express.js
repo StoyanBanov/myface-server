@@ -1,13 +1,12 @@
 const { static, json } = require('express')
 const cors = require('cors')
-const { CLIENT_ADDRESS } = require('./constants')
 const { auth } = require('../middleware/auth')
 const { searchParams } = require('../middleware/searchParams')
 const formParser = require('../middleware/formParser')
 
 const corsOptions = {
     origin: function (origin, callback) {
-        if (origin === CLIENT_ADDRESS) {
+        if (origin === process.env.CLIENT_ADDRESS) {
             callback(null, true)
         } else {
             //console.log(origin);

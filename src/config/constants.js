@@ -1,1 +1,0 @@
-exports.CLIENT_ADDRESS = 'http://localhost:5173'
