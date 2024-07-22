@@ -16,7 +16,7 @@ const corsOptions = {
 }
 
 module.exports = (app) => {
-    app.use(cors())
+    app.use(cors(corsOptions))
     app.use('/static', static('static'))
     app.use(formParser())
     app.use(json())
