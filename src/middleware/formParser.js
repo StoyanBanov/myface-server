@@ -1,11 +1,11 @@
 const busboy = require('busboy');
-const { ALLOWED_FILE_TYPES } = require('./constants');
-const { uploadFile } = require('./google');
+const { ALLOWED_FILE_TYPES } = require('../../constants');
+const { uploadStream } = require('../util/fileManagement');
 
 module.exports = () => (req, res, next) => {
-    if (req.method === 'POST') {
+    if (req.method === 'POST' && req.headers['content-type'].startsWith('multipart/form-data')) {
         const body = {}
-        const files = []
+        const fileUploadResponses = {}
 
         const bb = busboy({ headers: req.headers })
 
@@ -18,7 +18,9 @@ module.exports = () => (req, res, next) => {
                 return res.status(400).json(`File ${name} of type "${type}" isn\'t supported`)
             }
 
-            files.push(uploadFile(file, type))
+            const arr = fileUploadResponses[name]
+            if (arr) arr.push(uploadStream(file, type))
+            else fileUploadResponses[name] = [uploadStream(file, type)]
         })
 
         bb.on('error', (error) => {
@@ -29,9 +31,17 @@ module.exports = () => (req, res, next) => {
             body[name] = value
         })
 
-        bb.on('close', () => {
+        bb.on('close', async () => {
             req.body = body
-            req.files = files
+
+            const rawInfo = await Promise.all(Object.values(fileUploadResponses).flat())
+            const fileIds = rawInfo.map(d => d.public_id)
+            let i = 0
+            for (const key in fileUploadResponses) {
+                i += fileUploadResponses[key].length
+                req.body[key] = fileIds.slice(0, i)
+            }
+
             next()
         })
 

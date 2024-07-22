@@ -2,6 +2,7 @@ const { getSocket } = require('../config/socket')
 const { isUser } = require('../middleware/routeGuards')
 const { getChatsByUserId, getChatById, getMessagesByChatId, addMessage } = require('../services/chat')
 const { getUserById } = require('../services/user')
+const { deleteFIleById } = require('../util/fileManagement')
 const router = require('express').Router()
 
 router.get('/', isUser(), async (req, res) => {
@@ -20,7 +21,6 @@ router.post('/messages', isUser(), async (req, res) => {
         const userId = req.user._id
 
         const chat = await validateUserBelongsChat(userId, req.body.chat)
-
         const message = await addMessage({ ...req.body, user: userId })
 
         const io = getSocket()
@@ -32,6 +32,9 @@ router.post('/messages', isUser(), async (req, res) => {
         res.status(200).json(message)
     } catch (error) {
         console.log(error);
+
+        await Promise.all(req.body.images.map(id => deleteFIleById(id)))
+
         res.status(400).json(error.message)
     }
 })

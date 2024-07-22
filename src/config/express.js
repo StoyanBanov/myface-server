@@ -3,7 +3,7 @@ const cors = require('cors')
 const { CLIENT_ADDRESS } = require('./constants')
 const { auth } = require('../middleware/auth')
 const { searchParams } = require('../middleware/searchParams')
-const { formParser } = require('../middleware/formParser')
+const formParser = require('../middleware/formParser')
 
 const corsOptions = {
     origin: function (origin, callback) {

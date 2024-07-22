@@ -5,7 +5,7 @@ const { getSearchRegex } = require("./util");
 exports.getPosts = async (userId, { search = '', skip = 10, limit = 10 }) => {
     const user = await User.findById(userId)
 
-    let query = Post.find().where('visibility', 'friends').in('user', user.friends).or('visibility', 'all').skip(skip).limit(limit)
+    let query = Post.find().in('user', user.friends).or([{ visibility: 'friends', 'user': { '$in': user.friends } }, { status: 'emergency' }]).skip(skip).limit(limit)
 
     if (search) query = query.regex('text', getSearchRegex(search))
 
