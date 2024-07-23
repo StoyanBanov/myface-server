@@ -3,7 +3,7 @@ const nodemailer = require("nodemailer");
 require('dotenv').config()
 
 const transporter = nodemailer.createTransport({
-    host: "smtp.abv.bg",
+    host: "smtp.zoho.eu",
     port: 465,
     secure: true,
     auth: {
@@ -21,7 +21,7 @@ async function sendEmail(to, subject, text) {
         to,
         subject,
         text
-    });
+    })
 }
 
 module.exports = {
