@@ -12,6 +12,7 @@ const schema = new Schema({
             message: () => 'Invalid date of birth!'
         }
     },
+    gender: { type: String, enum: ['male', 'female'], required: true },
     profilePic: { type: ObjectId, ref: 'Image' },
     friends: { type: [ObjectId], ref: 'User', default: [] },
     status: { type: String, enum: ['active', 'deleted', 'banned'], default: 'active' }
