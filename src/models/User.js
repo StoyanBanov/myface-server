@@ -1,18 +1,18 @@
 const { model, Schema, Types: { ObjectId } } = require('mongoose')
 
 const schema = new Schema({
-    fname: { type: String, required: true, minLength: 1 },
-    lname: { type: String, required: true, minLength: 1 },
+    fname: { type: String, required: true, minLength: 2 },
+    lname: { type: String, required: true, minLength: 2 },
     password: { type: String, required: true },
-    email: { type: String, required: true, minLength: 5, unique: true },
+    email: { type: String, required: true, unique: true },
     dob: {
         type: Date, validate: {
             validator: (value) =>
-                value.getTime() < value.getFullYear() < Date.now().getFullYear() - 100 || value > currentDate,
+                (Date.parse(value) - Date.now()) / 31536000000 < 12,
             message: () => 'Invalid date of birth!'
         }
     },
-    gender: { type: String, enum: ['male', 'female'], required: true },
+    gender: { type: String, enum: ['male', 'female'] },
     profilePic: { type: ObjectId, ref: 'Image' },
     friends: { type: [ObjectId], ref: 'User', default: [] },
     status: { type: String, enum: ['active', 'deleted', 'banned'], default: 'active' }

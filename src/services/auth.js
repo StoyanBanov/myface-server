@@ -9,6 +9,9 @@ async function validate(data) {
     if (data.password != data.rePassword)
         throw new Error('Passwords do\'t match!')
 
+    if (await User.find({ email: data.email }))
+        throw new Error('Email is taken!')
+
     await User.validate(data)
 
     return { ...data }
