@@ -1,13 +1,18 @@
+const { EMAIL_VERIFICATION_TYPE_REGISTER, EMAIL_VERIFICATION_TYPE_PASSWORD, EMAIL_VERIFICATION_TYPE_DELETE } = require("../../constants")
 const { sendEmail } = require("./email")
 
-const verificationSession = {}
+const verificationSession = {
+    [EMAIL_VERIFICATION_TYPE_REGISTER]: {},
+    [EMAIL_VERIFICATION_TYPE_PASSWORD]: {},
+    [EMAIL_VERIFICATION_TYPE_DELETE]: {}
+}
 
-async function sendVerificationEmail(email, user) {
+async function sendVerificationEmail(type, email, payload) {
     try {
         const code = generateCode()
 
         await sendEmail(email, 'Verify Your Email', code + '')
-        verificationSession[email] = { code, user }
+        verificationSession[email] = { type, code, payload }
 
         setTimeout(() => delete verificationSession[email], 180000)
     } catch (error) {
@@ -18,10 +23,10 @@ async function sendVerificationEmail(email, user) {
 
 function validateEmailCode(email, code) {
     if (verificationSession[email].code == code) {
-        const { user } = verificationSession[email]
+        const { type, payload } = verificationSession[email]
         delete verificationSession[email]
 
-        return user
+        return { type, payload }
     } else {
         console.log(code);
         throw new Error('Invalid code!')
@@ -29,7 +34,7 @@ function validateEmailCode(email, code) {
 }
 
 function generateCode() {
-    return Math.trunc(Math.random() * 9999)
+    return `${Math.trunc(Math.random() * 9999)}0000`.slice(0, 4)
 }
 
 module.exports = {
