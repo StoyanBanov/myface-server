@@ -25,9 +25,9 @@ router.post('/messages', isUser(), async (req, res) => {
 
         const io = getSocket()
         for (const id of chat.users) {
-            console.log(id, userId);
-            if (id.toString() != userId)
+            if (id.toString() != userId) {
                 io.to(id.toString()).emit('message', message)
+            }
         }
 
         res.status(200).json(message)

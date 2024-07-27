@@ -1,7 +1,10 @@
-const { login, register, validate, changePassword } = require('../services/auth')
+const { login, register, validate, editAuthById, deleteAuthById } = require('../services/auth')
 const { validateEmailCode, sendVerificationEmail } = require('../util/emailVerification')
 const { sendUserData, clearSession } = require('../middleware/auth')
 const { isGuest, isUser, isNotVerified } = require('../middleware/routeGuards')
+const { PASSWORD_REGEX } = require('../services/constants')
+const { EMAIL_VERIFICATION_TYPE_REGISTER, EMAIL_VERIFICATION_TYPE_PASSWORD, EMAIL_VERIFICATION_TYPE_DELETE } = require('../../constants')
+const { deleteFIleById } = require('../util/fileManagement')
 const router = require('express').Router()
 
 router.post('/login',
@@ -19,13 +22,66 @@ router.post('/login',
     sendUserData()
 )
 
+router.get('/logout',
+    isUser(),
+    clearSession()
+)
+
+router.put('/',
+    isUser(),
+    async (req, res, next) => {
+        try {
+            req.userData = await editAuthById(req.user._id, req.body)
+
+            next()
+        } catch (error) {
+            console.log(error);
+
+            if (req.body.profilePic)
+                await deleteFIleById(req.body.profilePic)
+
+            res.status(400).json(error.message)
+        }
+    },
+    sendUserData()
+)
+
+
+
+router.post('/verify',
+    isNotVerified(),
+    async (req, res, next) => {
+        try {
+            const { payload, type } = await validateEmailCode(req.user.email, req.body.code)
+
+            if (type == EMAIL_VERIFICATION_TYPE_REGISTER) {
+                req.userData = await register(payload)
+
+                next()
+            } else if (type == EMAIL_VERIFICATION_TYPE_PASSWORD) {
+                req.userData = await editAuthById(req.user._id, { password: payload })
+
+                next()
+            } else if (type == EMAIL_VERIFICATION_TYPE_DELETE) {
+                await deleteAuthById(req.user._id)
+
+                res.status(204).end()
+            } else throw new Error('Verification type error!')
+        } catch (error) {
+            console.log(error);
+            res.status(400).json(error.message)
+        }
+    },
+    sendUserData()
+)
+
 router.post('/register',
     isGuest(),
     async (req, res, next) => {
         try {
             user = await validate(req.body)
 
-            await sendVerificationEmail(user.email, user)
+            await sendVerificationEmail(EMAIL_VERIFICATION_TYPE_REGISTER, user.email, user)
 
             req.userData = user
 
@@ -38,30 +94,13 @@ router.post('/register',
     sendUserData()
 )
 
-router.get('/logout',
-    isUser(),
-    clearSession()
-)
-
-router.post('/verify-register',
-    isNotVerified(),
-    async (req, res, next) => {
-        try {
-            const user = await validateEmailCode(req.user.email, req.body.code)
-            req.userData = await register(user)
-
-            next()
-        } catch (error) {
-            console.log(error);
-            res.status(400).json(error.message)
-        }
-    },
-    sendUserData()
-)
-
-router.post('/change-password', isUser(), async (req, res) => {
+router.put('/change-password', isUser(), async (req, res) => {
     try {
-        await sendVerificationEmail(req.user.email)
+        const { password } = req.body
+        if (!PASSWORD_REGEX.test(password))
+            throw new Error('Invalid password!')
+
+        await sendVerificationEmail(EMAIL_VERIFICATION_TYPE_PASSWORD, req.user.email, password)
 
         res.status(204).end()
     } catch (error) {
@@ -70,11 +109,9 @@ router.post('/change-password', isUser(), async (req, res) => {
     }
 })
 
-router.post('/verify-change-password', isNotVerified(), async (req, res) => {
+router.delete('/delete', isUser(), async (req, res) => {
     try {
-        await validateEmailCode(req.user.email, req.body.code)
-
-        await changePassword(req.user.id)
+        await sendVerificationEmail(EMAIL_VERIFICATION_TYPE_DELETE, req.user.email, req.user._id)
 
         res.status(204).end()
     } catch (error) {

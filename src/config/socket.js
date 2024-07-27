@@ -12,7 +12,8 @@ exports.socketConfig = (server) => {
 
     io.on('connection', (socket) => {
         socket.on('online', (userId) => {
-            socket.join(userId)
+            if (!socket.rooms.has(userId))
+                socket.join(userId)
         })
 
         socket.on('offline', (userId) => {

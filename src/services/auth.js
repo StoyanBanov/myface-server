@@ -9,7 +9,7 @@ async function validate(data) {
     if (data.password != data.rePassword)
         throw new Error('Passwords do\'t match!')
 
-    if (await User.find({ email: data.email }))
+    if (await User.findOne({ email: data.email }))
         throw new Error('Email is taken!')
 
     await User.validate(data)
@@ -47,9 +47,37 @@ async function login({ email, password }) {
     return user
 }
 
+async function editAuthById(id, data) {
+    const user = await User.findById(id)
+
+    for (const key in data) {
+        if (key == 'password') {
+            if (!PASSWORD_REGEX.test(data.password))
+                throw new Error('Invalid password!')
+
+            data.password = await bcrypt.hash(data.password, 10)
+        }
+
+        if (key == 'email' && await User.find({ email: data.email }))
+            throw new Error('Email is taken!')
+
+        user[key] = data[key]
+    }
+
+    await user.save()
+
+    return user
+}
+
+async function deleteAuthById(id) {
+    return User.findByIdAndDelete(id)
+}
+
 module.exports = {
     validate,
     changePassword,
     register,
-    login
+    login,
+    editAuthById,
+    deleteAuthById
 }

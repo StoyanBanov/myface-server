@@ -3,7 +3,7 @@ const { ALLOWED_FILE_TYPES } = require('../../constants');
 const { uploadStream } = require('../util/fileManagement');
 
 module.exports = () => (req, res, next) => {
-    if (req.method === 'POST' && req.headers['content-type'].startsWith('multipart/form-data')) {
+    if (['POST', 'PUT'].includes(req.method) && req.headers['content-type'].startsWith('multipart/form-data')) {
         const body = {}
         const fileUploadResponses = {}
 
@@ -15,7 +15,7 @@ module.exports = () => (req, res, next) => {
             if (!ALLOWED_FILE_TYPES.includes(type)) {
                 bb.destroy()
 
-                return res.status(400).json(`File ${name} of type "${type}" isn\'t supported`)
+                return res.status(400).json(`File ${name} of type "${type}" isn\'t supported!`)
             }
 
             const arr = fileUploadResponses[name]
@@ -38,8 +38,9 @@ module.exports = () => (req, res, next) => {
             const fileIds = rawInfo.map(d => d.public_id)
             let i = 0
             for (const key in fileUploadResponses) {
-                i += fileUploadResponses[key].length
-                req.body[key] = fileIds.slice(0, i)
+                const length = fileUploadResponses[key].length
+                i += length
+                req.body[key] = length == 1 ? fileIds[0] : fileIds.slice(0, i)
             }
 
             next()
