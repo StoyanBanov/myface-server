@@ -8,6 +8,7 @@ router.get('/', isUser(), async (req, res) => {
     try {
         const users = await getUsers(req.query)
         const friendships = await getFriendships({
+            ...req.query,
             where: {
                 ind: {
                     '$in': users.map(u => getPossibleFriendshipIndices(u._id, req.user._id)).flat()

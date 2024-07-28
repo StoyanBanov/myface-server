@@ -19,19 +19,27 @@ exports.uploadStream = async (fileStream) => {
 }
 
 exports.deleteFIleById = async (id) => {
-    return new Promise((resolve) => {
-        cloudinary.uploader.destroy(id, (result) => {
-            resolve(result)
+    try {
+        return await new Promise((resolve) => {
+            cloudinary.uploader.destroy(id, (result) => {
+                resolve(result)
+            })
         })
-    })
+    } catch (error) {
+        console.log(error);
+    }
 }
 
 exports.deleteFilesById = async (ids) => {
-    return new Promise((resolve) => {
-        fileStream.pipe(
-            cloudinary.api.delete_resources(ids, (result) => {
-                resolve(result)
-            })
-        )
-    })
+    try {
+        return await new Promise((resolve) => {
+            fileStream.pipe(
+                cloudinary.api.delete_resources(ids, (result) => {
+                    resolve(result)
+                })
+            )
+        })
+    } catch (error) {
+        console.log(error);
+    }
 }

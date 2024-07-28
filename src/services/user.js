@@ -1,6 +1,7 @@
 const Chat = require("../models/Chat");
 const Friendship = require("../models/Friendship");
 const User = require("../models/User");
+const { getSearchRegex } = require("../util/helpers");
 
 exports.getUsers = async ({ where = {}, or, search, skip = 0, limit = 10 }) => {
     let query = User.find().where(where).skip(skip, skip + limit)
