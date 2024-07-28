@@ -2,16 +2,27 @@ const Chat = require("../models/Chat");
 const Friendship = require("../models/Friendship");
 const User = require("../models/User");
 
-exports.getUsers = async ({ where = {}, skip = 0, limit = 10 }) => {
-    const users = await User.find().where(where).skip(skip, skip + limit)
+exports.getUsers = async ({ where = {}, or, search, skip = 0, limit = 10 }) => {
+    let query = User.find().where(where).skip(skip, skip + limit)
 
-    return users
+    if (or) {
+        query = query.or(or)
+    }
+
+    if (search) {
+        const [fname, lname] = search.split(' ')
+
+        query = query.regex('fname', getSearchRegex(fname))
+        if (lname) query = query.regex('lname', getSearchRegex(lname))
+    }
+
+    return query.lean()
 }
 
-exports.getFriendShips = async ({ where = {}, skip = 0, limit = 10 }) => {
-    const users = await Friendship.find().where(where).skip(skip, skip + limit)
+exports.getFriendships = ({ where = {}, skip = 0, limit = 10 }) => {
+    let query = Friendship.find().where(where).skip(skip, skip + limit)
 
-    return users
+    return query
 }
 
 exports.getUserById = (id) => User.findById(id)
@@ -27,18 +38,19 @@ exports.addFriendship = async (userId, friendId) => {
     await Friendship.create({
         ind: `${userId} ${friendId}`,
         requested: userId,
-        accepted: friendId
-    })
+        accepted: friendId,
 
-    await Chat.create({
-        users: [userId, friendId],
-        admins: [userId, friendId]
+        requestedFname: user.fname,
+        requestedLname: user.lname,
+
+        acceptedFname: friend.fname,
+        acceptedLname: friend.lname,
     })
 
     return friend
 }
 
-exports.editFriendship = async (userId, friendId) => {
+exports.acceptFriendship = async (userId, friendId) => {
     const [user, friend] = await getFriendsByIds(userId, friendId)
 
     const existing = await getFriendshipByIds(userId, friendId)
@@ -46,12 +58,21 @@ exports.editFriendship = async (userId, friendId) => {
     if (!existing)
         throw new Error('Not yet requested!')
 
-    existing.accepted = true
+    existing.isAccepted = true
+
+    await existing.save()
+
+    const existingChat = await Chat.find({ users: [userId, friendId] })
+    if (!existingChat)
+        await Chat.create({
+            users: [userId, friendId],
+            admins: [userId, friendId]
+        })
 
     return friend
 }
 
-exports.removeFriend = async (userId, friendId) => {
+exports.removeFriendship = async (userId, friendId) => {
     const [user, friend] = await getFriendsByIds(userId, friendId)
 
     const existing = await getFriendshipByIds(userId, friendId)

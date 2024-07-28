@@ -7,7 +7,7 @@ module.exports = model(
             user: { type: ObjectId, ref: 'User', required: true },
             chat: { type: ObjectId, ref: 'Chat', required: true },
             text: { type: String, maxLength: 500 },
-            images: { type: [String], ref: 'Image', default: [] },
+            images: { type: [String], default: [] },
         },
         { timestamps: true }
     ),

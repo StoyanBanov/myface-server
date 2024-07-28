@@ -11,11 +11,16 @@ exports.searchParams = () => (req, res, next) => {
 }
 
 function parse(param) {
-    return Object.fromEntries(param.split(/(?=&[^"]*=)&/gm).map(q => {
+    return Object.fromEntries(param.split(/(?=&"[^"]*=)&/gm).map(q => {
         let [k, v] = JSON.parse(q).split('=')
 
-        if (!isNaN(v)) v = Number(v)
+        let parsed
+        try {
+            parsed = JSON.parse(v)
+        } catch (error) {
+            parsed = v
+        }
 
-        return [k, v]
+        return [k, parsed]
     }))
 }
