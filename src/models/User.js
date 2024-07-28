@@ -1,11 +1,11 @@
 const { model, Schema, Types: { ObjectId } } = require('mongoose')
 
 const schema = new Schema({
-    fname: { type: String, required: true, minLength: 2 },
-    lname: { type: String, required: true, minLength: 2 },
+    fname: { type: String, required: true, minLength: 2, maxLength: 20 },
+    lname: { type: String, required: true, minLength: 2, maxLength: 20 },
 
     password: { type: String, required: true },
-    email: { type: String, required: true, unique: true },
+    email: { type: String, required: true, unique: true, maxLength: 30 },
 
     dob: {
         type: String, validate: {

@@ -22,9 +22,12 @@ exports.addMessage = async (data) => {
     const chat = await Chat.findById(data.chat)
 
     if (!chat)
-        throw new Error('No such chat')
+        throw new Error('No such chat!')
 
     delete data.createdAt
+
+    if (!data.text && !data.images)
+        throw new Error('Empty message!')
 
     const message = await Message.create(data)
 
