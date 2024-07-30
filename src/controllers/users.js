@@ -34,6 +34,7 @@ router.get('/', isUser(), async (req, res) => {
 
 router.get('/friendships', isUser(), async (req, res) => {
     const options = {
+        ...req.query,
         where: req.query.where || {}
     }
 
