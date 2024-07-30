@@ -5,6 +5,7 @@ const { isGuest, isUser, isNotVerified } = require('../middleware/routeGuards')
 const { PASSWORD_REGEX } = require('../services/constants')
 const { EMAIL_VERIFICATION_TYPE_REGISTER, EMAIL_VERIFICATION_TYPE_PASSWORD, EMAIL_VERIFICATION_TYPE_DELETE } = require('../../constants')
 const { deleteFIleById } = require('../util/fileManagement')
+const { getUserById } = require('../services/user')
 const router = require('express').Router()
 
 router.post('/login',
@@ -31,7 +32,12 @@ router.put('/',
     isUser(),
     async (req, res, next) => {
         try {
+            const user = await getUserById(req.user._id)
+
             req.userData = await editAuthById(req.user._id, req.body)
+
+            if (req.body.profilePic)
+                deleteFIleById(user.profilePic)
 
             next()
         } catch (error) {

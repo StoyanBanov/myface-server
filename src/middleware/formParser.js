@@ -36,11 +36,12 @@ module.exports = () => (req, res, next) => {
 
             const rawInfo = await Promise.all(Object.values(fileUploadResponses).flat())
             const fileIds = rawInfo.map(d => d.public_id)
+
             let i = 0
             for (const key in fileUploadResponses) {
                 const length = fileUploadResponses[key].length
                 i += length
-                req.body[key] = length == 1 ? fileIds[0] : fileIds.slice(0, i)
+                req.body[key] = key.endsWith('s') ? fileIds.slice(0, i) : fileIds[0]
             }
 
             next()

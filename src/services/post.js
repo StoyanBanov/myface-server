@@ -2,23 +2,23 @@ const Post = require("../models/Post");
 const User = require("../models/User");
 const { getSearchRegex } = require("../util/helpers");
 
-exports.getPosts = async (userId, { search, skip = 10, limit = 10 }) => {
-    const user = await User.findById(userId)
+exports.getPosts = async ({ where = {}, or, search, skip = 0, limit = 10 }) => {
+    let query = Post.find()
+        .where(where)
+        .skip(skip).limit(limit)
 
-    let query = Post.find().in('user', user.friends).or([{ visibility: 'friends', user: { '$in': user.friends } }, { status: 'emergency' }]).skip(skip).limit(limit)
+    if (or) query = query.or(or)
 
     if (search) query = query.regex('text', getSearchRegex(search))
 
-    return query
+    return query.populate('user')
 }
 
-exports.getPostById = async (id) => {
-    const post = await Post.findById(id)
+exports.getPostById = async (id) => Post.findById(id).populate('user')
 
-    if (!post)
-        throw new Error('No such post')
+exports.addPost = (data) => {
+    if (!data.text && !data.images)
+        throw new Error('Empty post!')
 
-    return post
+    return Post.create(data)
 }
-
-exports.addPost = (userId, data) => Post.create({ ...data, user: userId })

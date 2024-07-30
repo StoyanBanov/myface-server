@@ -8,4 +8,7 @@ module.exports = (app) => {
     app.use('/chats', chatsController)
     app.use('/users', usersController)
     app.use('/auth', authController)
+    app.use('/*', (req, res) => {
+        res.status(404).json('404')
+    })
 }

@@ -1,6 +1,6 @@
 const { isUser } = require('../middleware/routeGuards');
 const { getUsers, getUserById, addFriendship, removeFriendship, acceptFriendship, getFriendships } = require('../services/user');
-const { getSearchRegex } = require('../util/helpers');
+const { getSearchRegex, getPossibleFriendshipIndices } = require('../util/helpers');
 
 const router = require('express').Router()
 
@@ -113,12 +113,5 @@ router.get('/:id', async (req, res) => {
         res.status(400).json(error.message)
     }
 })
-
-function getPossibleFriendshipIndices(id1, id2) {
-    return [
-        `${id1} ${id2}`,
-        `${id2} ${id1}`
-    ]
-}
 
 module.exports = router

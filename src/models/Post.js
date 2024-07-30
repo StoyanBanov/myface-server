@@ -5,8 +5,8 @@ module.exports = model(
     new Schema(
         {
             user: { type: ObjectId, ref: 'User', required: true },
-            text: { type: String, minLength: 1, maxLength: 2000 },
-            images: { type: [ObjectId], ref: 'Image', default: [] },
+            text: { type: String, maxLength: 2000 },
+            images: { type: [String], default: [] },
             visibility: { type: String, enum: ['owner', 'friends', 'all'], default: 'friends', required: true }
         },
         { timestamps: true }
