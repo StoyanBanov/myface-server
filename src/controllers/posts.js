@@ -1,7 +1,7 @@
 const { isUser } = require('../middleware/routeGuards');
 const { getPostById, addPost, getPosts } = require('../services/post');
 const { getFriendships } = require('../services/user');
-const { getSearchRegex } = require('../util/helpers');
+const { getSearchRegex, getPossibleFriendshipIndices } = require('../util/helpers');
 const router = require('express').Router()
 
 router.get('/', isUser(), async (req, res) => {
@@ -27,6 +27,7 @@ router.get('/', isUser(), async (req, res) => {
 router.get('/own', isUser(), async (req, res) => {
     try {
         const posts = await getPosts({
+            ...req.query,
             where: {
                 user: req.user._id
             }
