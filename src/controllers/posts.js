@@ -123,7 +123,8 @@ router.put('/:id', isUser(), async (req, res) => {
         if (post.user._id != req.user._id)
             throw new Error('Not the owner of the post!')
 
-        await Promise.all(req.body.removedImages.map(id => deleteFIleById(id)))
+        if (req.body.removedImages)
+            await Promise.all(req.body.removedImages.map(id => deleteFIleById(id)))
 
         res.status(200).json(await editPostById(id, req.body))
     } catch (error) {
