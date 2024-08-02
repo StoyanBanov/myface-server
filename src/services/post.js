@@ -1,5 +1,4 @@
 const Post = require("../models/Post");
-const User = require("../models/User");
 const { getSearchRegex } = require("../util/helpers");
 
 exports.getPosts = async ({ where = {}, or, search, skip = 0, limit = 10 }) => {
@@ -11,10 +10,10 @@ exports.getPosts = async ({ where = {}, or, search, skip = 0, limit = 10 }) => {
 
     if (search) query = query.regex('text', getSearchRegex(search))
 
-    return query.populate('user')
+    return query.populate('user').lean()
 }
 
-exports.getPostById = async (id) => Post.findById(id).populate('user')
+exports.getPostById = async (id) => Post.findById(id).populate('user').lean()
 
 exports.addPost = (data) => {
     if (!data.text && !data.images)
@@ -22,3 +21,15 @@ exports.addPost = (data) => {
 
     return Post.create(data)
 }
+
+exports.editPostById = (id, data) => {
+    if (!data.text && !data.images)
+        throw new Error('Empty post!')
+
+    const post = Post.findByIdAndUpdate(id, data, { runValidators: true })
+
+    return post
+}
+
+
+exports.deletePostById = (id) => Post.findByIdAndDelete(id)
