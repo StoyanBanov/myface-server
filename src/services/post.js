@@ -1,10 +1,12 @@
 const Post = require("../models/Post");
 const { getSearchRegex } = require("../util/helpers");
 
-exports.getPosts = async ({ where = {}, or, search, skip = 0, limit = 10 }) => {
+exports.getPosts = async ({ where = {}, orderBy = { createdAt: -1 }, or, search, skip = 0, limit = 10 }) => {
     let query = Post.find()
         .where(where)
-        .skip(skip).limit(limit)
+        .sort(orderBy)
+        .skip(skip)
+        .limit(limit)
 
     if (or) query = query.or(or)
 
