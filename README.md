@@ -63,7 +63,7 @@ This is a web API implemented specifically for the needs of [Myface](https://git
     - CLOUDINARY_API_KEY=(key from cloudinary)
     - CLOUDINARY_API_SECRET=(secret from cloudinary)
   - Install dependencies - npm i
-  - Run appliaction - npm run dev
+  - Run appliaction - npm run debug
   - Run the [Myface Server](https://github.com/StoyanBanov/myface-server)
 
 ## Deployment Info
