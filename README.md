@@ -2,7 +2,7 @@
 
 ## Technologies Used:
 
-### Backend Stack:
+### Back-End Stack:
 - [![Node.js](https://img.shields.io/badge/Node.js-✓-green)](https://nodejs.org/)
 - [![Express.js](https://img.shields.io/badge/Express.js-✓-lightgrey)](https://expressjs.com/)
 - [![Mongoose](https://img.shields.io/badge/Mongoose-✓-orange)](https://mongoosejs.com/)
