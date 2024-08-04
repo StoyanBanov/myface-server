@@ -119,7 +119,7 @@ router.get('/:id', async (req, res) => {
         }
 
         if (isUserAuthorized)
-            res.status(200).json(await appendLikes(post, req.user._id))
+            res.status(200).json(await appendLikes(post, req.user?._id))
         else
             res.status(403).json('Not authorized to view this post!')
 
@@ -201,6 +201,7 @@ async function appendLikes(posts, user) {
 
     async function append(post) {
         post.likesCount = await getLikes({ where: { post }, count: true })
-        post.isLiked = (await getLikes({ where: { post, user } })).length > 0
+        if (user)
+            post.isLiked = (await getLikes({ where: { post, user } })).length > 0
     }
 }
