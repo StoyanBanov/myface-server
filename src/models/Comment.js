@@ -7,8 +7,8 @@ module.exports = model(
             user: { type: ObjectId, ref: 'User', required: true },
             post: { type: ObjectId, ref: 'Post' },
             comment: { type: ObjectId, ref: 'Comment' },
-            text: { type: String, minLength: 1, maxLength: 200, required: true },
-            images: { type: [ObjectId], ref: 'Image', default: [] },
+            text: { type: String, maxLength: 500 },
+            images: { type: [String], default: [] },
         },
         { timestamps: true }
     ),

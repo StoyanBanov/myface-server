@@ -1,10 +1,69 @@
 const { isUser } = require('../middleware/routeGuards');
-const { addLike, getLikes, deleteLike, getLikeById, deleteLikes } = require('../services/like');
+const { deleteCommentById, getCommentById, addComment, getComments } = require('../services/comment');
+const { addLike, getLikes, deleteLike, deleteLikes } = require('../services/like');
 const { getPostById, addPost, getPosts, editPostById, deletePostById } = require('../services/post');
 const { getFriendships } = require('../services/user');
 const { deleteFIleById } = require('../util/fileManagement');
 const { getSearchRegex, getPossibleFriendshipIndices } = require('../util/helpers');
 const router = require('express').Router()
+
+router.get('/comments/:postId', async (req, res) => {
+    try {
+        const { postId } = req.params
+
+        const existingPost = await getPostById(postId)
+        if (!existingPost)
+            throw new Error('No such post!')
+
+        res.status(200).json(await getComments({ ...req.query, where: { post: postId } }))
+    } catch (error) {
+        console.log(error);
+
+        res.status(400).json(error.message)
+    }
+})
+
+router.post('/comments', async (req, res) => {
+    try {
+        const { post } = req.body
+
+        const existingPost = await getPostById(post)
+        if (!existingPost)
+            throw new Error('No such post!')
+
+        res.status(200).json(await addComment({ ...req.body, user: req.user._id }))
+    } catch (error) {
+        console.log(error);
+
+        req.body.images.forEach(i => deleteFIleById(i))
+
+        res.status(400).json(error.message)
+    }
+})
+
+router.delete('/comments/:id', async (req, res) => {
+    try {
+        const commentId = req.params.id
+        const userId = req.user._id
+
+        const comment = await getCommentById(commentId)
+        if (!comment)
+            throw new Error('No such comment!')
+
+        if (comment.user != userId && (await getPostById(comment.post)).user != userId)
+            throw new Error('Not authorized!')
+
+        comment.images.forEach(i => deleteFIleById(i))
+
+        await deleteCommentById(commentId)
+
+        res.status(204).end()
+    } catch (error) {
+        console.log(error);
+
+        res.status(403).json(error.message)
+    }
+})
 
 router.post('/likes', async (req, res) => {
     try {
@@ -135,7 +194,7 @@ router.post('/', isUser(), async (req, res) => {
     } catch (error) {
         console.log(error);
 
-        await Promise.all(req.body.images.map(id => deleteFIleById(id)))
+        req.body.images.forEach(id => deleteFIleById(id))
 
         res.status(400).json(error.message)
     }
@@ -181,6 +240,7 @@ router.delete('/:id', isUser(), async (req, res) => {
         res.status(204).end()
     } catch (error) {
         console.log(error);
+
         res.status(400).json(error.message)
     }
 })
