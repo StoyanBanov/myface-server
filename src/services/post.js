@@ -24,13 +24,13 @@ exports.addPost = (data) => {
     return Post.create(data)
 }
 
-exports.editPostById = (id, data) => {
+exports.editPostById = async (id, data) => {
     if (!data.text && !data.images)
         throw new Error('Empty post!')
 
-    const post = Post.findByIdAndUpdate(id, data, { runValidators: true })
+    await Post.findByIdAndUpdate(id, data, { runValidators: true })
 
-    return post
+    return Post.findById(id)
 }
 
 
