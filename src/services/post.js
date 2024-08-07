@@ -18,7 +18,7 @@ exports.getPosts = async ({ where = {}, orderBy = { createdAt: -1 }, or, search,
 exports.getPostById = async (id) => Post.findById(id).populate('user').lean()
 
 exports.addPost = (data) => {
-    if (!data.text && !data.images)
+    if (!data.text && !data.images?.length)
         throw new Error('Empty post!')
 
     return Post.create(data)

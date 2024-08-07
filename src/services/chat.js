@@ -26,7 +26,7 @@ exports.addMessage = async (data) => {
 
     delete data.createdAt
 
-    if (!data.text && !data.images)
+    if (!data.text && !data.images?.length)
         throw new Error('Empty message!')
 
     const message = await Message.create(data)

@@ -11,8 +11,8 @@ exports.getComments = ({ where, orderBy = { createdAt: -1 }, skip = 0, limit = 1
 exports.getCommentById = (id) => Comment.findById(id)
 
 exports.addComment = (data) => {
-    if (!data.text && !data.images)
-        throw new Error('Empty post!')
+    if (!data.text && !data.images?.length)
+        throw new Error('Empty comment!')
 
     return Comment.create(data)
 }
