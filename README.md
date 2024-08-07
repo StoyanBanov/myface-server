@@ -43,6 +43,9 @@ This is a web API implemented specifically for the needs of [Myface](https://git
  
  - **Posts:**
   - CRUD
+  - Add like/comment
+  - Delete like/comment
+  - Read likes/comments
 
 ## Running the application
   ### Prerequisites:
