@@ -63,7 +63,8 @@ exports.acceptFriendship = async (userId, friendId) => {
 
     await existing.save()
 
-    const existingChat = await Chat.find({ users: [userId, friendId] })
+    const existingChat = await Chat.findOne({ users: userId }).where({ admins: friendId })
+
     if (!existingChat)
         await Chat.create({
             users: [userId, friendId],

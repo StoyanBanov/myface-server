@@ -30,7 +30,7 @@ module.exports = () => (req, res, next) => {
         bb.on('field', (name, value) => {
             if (Array.isArray(body[name])) body[name].push(value)
 
-            if (!body[name] && name.endsWith('s')) body[name] = [value]
+            else if (!body[name] && name.endsWith('s')) body[name] = [value]
             else body[name] = value
         })
 

@@ -117,7 +117,7 @@ router.get('/', isUser(), async (req, res) => {
     try {
         const userId = req.user._id
 
-        const friends = (await getFriendships({ where: { ind: getSearchRegex(userId) } }))
+        const friends = (await getFriendships({ where: { ind: getSearchRegex(userId), isAccepted: true } }))
             .map(f => f.accepted == userId ? f.requested : f.accepted)
 
         const posts = await getPosts({
