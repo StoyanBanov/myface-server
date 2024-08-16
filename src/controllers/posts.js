@@ -7,15 +7,11 @@ const { deleteFIleById } = require('../util/fileManagement');
 const { getSearchRegex, getPossibleFriendshipIndices } = require('../util/helpers');
 const router = require('express').Router()
 
-router.get('/comments/:postId', async (req, res) => {
+router.get('/comments', async (req, res) => {
     try {
-        const { postId } = req.params
+        // validation
 
-        const existingPost = await getPostById(postId)
-        if (!existingPost)
-            throw new Error('No such post!')
-
-        res.status(200).json(await getComments({ ...req.query, where: { post: postId } }))
+        res.status(200).json(await getComments({ ...req.query }))
     } catch (error) {
         console.log(error);
 

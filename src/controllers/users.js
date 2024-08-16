@@ -74,7 +74,7 @@ router.get('/friendships', isUser(), async (req, res) => {
 
         res.status(200).json(friends)
     } catch (error) {
-        console.log(error.message);
+        console.log(error);
         res.status(400).json(error.message)
     }
 })
